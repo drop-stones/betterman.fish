@@ -1,6 +1,7 @@
 function man --description "Better man with colorized --help fallback"
-    if test "$__betterman_bat_available" = 0 || test (count $argv) -eq 0
-        command man
+    # If bat is not available or no arguments, use standard man
+    if set -q __betterman_bat_cmd || test (count $argv) -eq 0
+        command man $argv
         return
     end
 
@@ -18,6 +19,6 @@ function man --description "Better man with colorized --help fallback"
         return 16
     end
 
-    # Fallback to --help
-    $cmd --help 2>&1 | bat --language=help --style=plain
+    # Fallback to --help with bat
+    $cmd --help 2>&1 | $__betterman_bat_cmd --language=help --style=plain
 end
