@@ -1,18 +1,18 @@
 # betterman.fish - Better man with colorized output
 
-# Check if bat is available
-if not command -v bat &>/dev/null
-    echo "betterman.fish: 'bat' command not found. Install bat for colorized output." >&2
-    echo "  Arch Linux: pacman -S bat" >&2
-    echo "  Ubuntu/Debian: apt install bat" >&2
-    echo "  macOS: brew install bat" >&2
-    set -g __betterman_bat_available 0
+# Detect bat command (bat or batcat)
+if command -v bat &>/dev/null
+    set -g __betterman_bat_cmd bat
+else if command -v batcat &>/dev/null
+    set -g __betterman_bat_cmd batcat
 else
-    set -g __betterman_bat_available 1
+    echo "betterman.fish: 'bat' command not found. Install bat for colorized output." >&2
 end
 
-# Set MANPAGER only if not already set and bat is available
-if test $__betterman_bat_available -eq 1 && not set -q MANPAGER
+# Set MANPAGER only if bat is available and MANPAGER is not set
+if test -n "$__betterman_bat_cmd"; and not set -q MANPAGER
+    # sh -c: to interpret pipe
+    # col -bx: to remove backspace sequences (^H)
     set -gx MANPAGER "sh -c 'col -bx | bat --language=man --style=plain --paging=always'"
 end
 
